@@ -30,7 +30,10 @@ For each of the controllers api, generate the following curl and save a file nam
 ```
 
 ### Prompt 3 - frontend
-In GitHub copilot edit in agent mode, add the `aichat-frontend` folder and  run the following prompt:
+
+Follow the instructions below:
+1. Extract the swagger definition and save it in a file `api-definition.json`.
+2. Using **GiHub Copilot Agent Mode**, select the **Claude 3.7** model and add as attachment the file `api-definition.json`, add the `aichat-frontend` folder and call the agent with the following prompt:
 ```
 Create a modern, responsive frontend for an AI chat application inspired by the clean, minimalistic design of ChatGPT.
 The frontend should be built using React and must use Tailwind. Tailwind is already configured, don't configure it.
@@ -45,22 +48,124 @@ Include comments in the code to explain key sections. Provide the full code for 
 ```
 
 ### Prompt 4 - add OpenAI
+[Azure OpenAI client library for Java](https://learn.microsoft.com/en-us/java/api/overview/azure/ai-openai-readme?view=azure-java-preview#text-completions)
 
 Remove the mock from the method `generateAIResponse` and add the following code:
 
 Pom:
-```
+```xml
+<dependency>
+    <groupId>com.azure</groupId>
+    <artifactId>azure-ai-openai</artifactId>
+    <version>1.0.0-beta.15</version>
+</dependency>
+
 ```
 
 Method:
-```
+```java
+@Value("${AZURE_OPENAI_ENDPOINT}")
+private String endpoint;
+
+@Value("${AZURE_OPENAI_API_KEY}")
+private String apiKey;
+
+@Value("${AZURE_OPENAI_DEPLOYMENT_NAME}")
+private String deploymentName;
+
+/**
+ * Generate AI response with Markdown support
+ */
+private String generateAIResponse(String userMessage, List<Message> history) {
+    if (endpoint == null || apiKey == null) {
+        System.err.println("OpenAI configuration is missing. Please check your .env file.");
+        return "Error: Configuration missing, check the logs for more details.";
+    }
+
+    // Initialize the OpenAI client with key-based authentication
+    OpenAIClient client = new OpenAIClientBuilder()
+            .endpoint(endpoint)
+            .credential(new AzureKeyCredential(apiKey))
+            .buildClient();
+
+    // Simulate chat interaction
+    List<ChatRequestMessage> prompts = new ArrayList<>();
+    
+    // Add system message to encourage Markdown formatting
+    prompts.add(new ChatRequestSystemMessage( 
+        "You are a helpful assistant that provides well-formatted responses using Markdown. " +
+        "Use appropriate Markdown syntax for: " +
+        "- Headers (# for main points) " +
+        "- Lists (- or 1. for steps) " +
+        "- Code blocks (``` for multiline, ` for inline) " +
+        "- **Bold** for emphasis " +
+        "- *Italic* for technical terms " +
+        "- > Blockquotes for important notes " +
+        "- [Links](URL) when referencing external resources " +
+        "Format your responses clearly and consistently using these elements."
+    ));
+
+    // Add previous messages to maintain context
+    for (Message message : history) {
+        if(message.getRole().equals("user")) {
+            prompts.add(new ChatRequestUserMessage( message.getContent()));
+        } else if(message.getRole().equals("assistant")) {
+            prompts.add(new ChatRequestAssistantMessage( message.getContent()));
+        }
+    }
+
+    prompts.add(new ChatRequestUserMessage( userMessage ));
+
+
+    ChatCompletionsOptions options = new ChatCompletionsOptions(prompts)
+            .setTemperature(0.7);   
+
+    try {
+        ChatCompletions chatCompletions = client.getChatCompletions(deploymentName, options);
+        return chatCompletions.getChoices().get(0).getMessage().getContent();
+    } catch (Exception e) {
+        e.printStackTrace();
+        System.out.println("Error: " + e.getMessage());
+        return "Error: unexpected error occurred, see the logs for more details.";
+    }
+}
 
 ```
 
 
 ### Prompt 5 - add RAG
 
-Query ai-chat:
+```java
+@Value("${AZURE_OPENAI_SEARCH_ENDPOINT}")
+    private String searchEndpoint;
+
+    @Value("${AZURE_OPENAI_SEARCH_INDEX}")
+    private String searchIndex;
+
+    @Value("${AZURE_OPENAI_SEARCH_API_KEY}")
+    private String searchApiKey;
+
+    @Value("${AZURE_OPENAI_EMBEDDING_ENDPOINT}")
+    private String embeddingEndpoint;
+
+    @Value("${AZURE_OPENAI_EMBEDDING_KEY}")
+    private String embeddingKey;
+
+
+    ChatCompletionsOptions options = new ChatCompletionsOptions(prompts)
+            .setTemperature(0.7)
+            .setDataSources(List.of(  
+                            new AzureSearchChatExtensionConfiguration( new AzureSearchChatExtensionParameters(searchEndpoint, searchIndex)
+                            .setAuthentication( new  OnYourDataApiKeyAuthenticationOptions(searchApiKey))
+                            .setQueryType(AzureSearchQueryType.VECTOR_SEMANTIC_HYBRID) //VECTOR or SIMPLE or VECTOR_SIMPLE_HYBRID
+                            .setEmbeddingDependency( new OnYourDataEndpointVectorizationSource(embeddingEndpoint, new OnYourDataVectorSearchApiKeyAuthenticationOptions(embeddingKey)  ))
+                            )  
+                    )
+            );   
+
+```
+
+RAG queries:
 ```
 tell me something about workplace safety program
 ```
@@ -70,6 +175,32 @@ or
 which are the differences between Northwind standard and Northwind health plus?
 ```
 
+### Prompt 6 - citations
+```java
+ChatCompletions chatCompletions = client.getChatCompletions(deploymentName, options);
+ChatChoice choice = chatCompletions.getChoices().get(0);
+ChatResponseMessage respMessage = choice.getMessage();
+AzureChatExtensionsMessageContext respMessageContext = respMessage.getContext();
+List<AzureChatExtensionDataSourceResponseCitation> citations = respMessageContext.getCitations();
+StringBuilder sb = new StringBuilder();
+sb.append( respMessage.getContent() );
+
+if (respMessageContext != null) {
+    sb.append("\n\n**Citations:**\n");
+    for (AzureChatExtensionDataSourceResponseCitation citation : citations) {
+        sb.append(citation.getTitle());
+        sb.append(" - ");
+        sb.append(citation.getUrl());
+        sb.append(" - ");
+        sb.append(citation.getFilepath());
+        sb.append(" - ");
+        sb.append(citation.getRerankScore());
+        sb.append(" - ");
+        sb.append(citation.getChunkId());
+        sb.append("\n");
+    }
+}
+```
 
 ## Basic configuration
 ```bash
