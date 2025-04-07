@@ -47,7 +47,16 @@ The interface should include the following features:
 Include comments in the code to explain key sections. Provide the full code for the frontend, and ensure it’s functional, reusable, and easy to integrate with a backend API that keeps track of previous messages.
 ```
 
-### Prompt 4 - add OpenAI
+### Prompt 4 - add OpenAI from fetch
+Use this prompt with Cloude 3.5 Sonnet:
+
+```txt
+using the documentation from #fetch https://learn.microsoft.com/en-us/java/api/overview/azure/ai-openai-readme?view=azure-java-preview , create an openAI client for Azure OpenAI GPT 4o mini, and implement the method generateAIResponse. env var are already defined in .env file.
+```
+
+
+### Prompt 4 - add OpenAI from prepared code
+
 [Azure OpenAI client library for Java](https://learn.microsoft.com/en-us/java/api/overview/azure/ai-openai-readme?view=azure-java-preview#text-completions)
 
 Remove the mock from the method `generateAIResponse` and add the following code:
