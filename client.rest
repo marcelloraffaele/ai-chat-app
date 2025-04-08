@@ -1,0 +1,30 @@
+# Get OpenAPI Definition
+curl -X GET http://localhost:8080/v3/api-docs
+###
+
+# Get Chat History for conversation 123
+curl -X GET http://localhost:8080/chat/history/123
+###
+
+# Send a message for chat completion
+curl -X POST http://localhost:8080/chat/completion \
+  -H "Content-Type: application/json" \
+  -d '{
+    "conversationId": 123,
+    "message": "ciao",
+    "history": [
+      {
+        "role": "user",
+        "content": "Previous message"
+      }
+    ]
+  }'
+###
+
+curl -X POST http://localhost:8080/chat/completion \
+  -H "Content-Type: application/json" \
+  -d '{
+    "conversationId": 1,
+    "message": "The sky is"
+  }'
+###
