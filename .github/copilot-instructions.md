@@ -1,6 +1,3 @@
-Start all chats with `🤖 GitHub Copilot 😄`
-
-
 ## Stack
 - Java (Spring Boot)
 - React
