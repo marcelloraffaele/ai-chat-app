@@ -1,12 +1,29 @@
 # ai-chat-app
 AI Chat is a chat backed by LLM model that help user to make intelligent things... content generation, RAG, image parsing...
 
+Note: in the `main` branch the repository is initialized with only the structure of the project, the backend is a springboot project and the frontend is a react app with tailwindcss. The backend is not yet implemented, but you can use the prompts to generate the code for the backend and frontend. 
+
+
+## Run the Demo locally
+### Backend
+```
+cd aichat-backend
+mvn spring-boot:run
+```
+### Frontend
+```
+cd aichat-frontend
+npm install
+npm run dev
+```
+
+
 ## Demo Github copilot
 ### Prompt 1
-Using **Claude Sonnet 3.5**, in GitHub copilot edit in agent mode, add the `aichat-backend` folder and  run the following prompt:
+Using GitHub copilot edit in agent mode, add the `aichat-backend` folder and  run the following prompt:
 
 ```
-create a Spring boot controller expose and API for a AI chat application.
+create a Spring boot controller expose and API for a AI chat backend application.
 Create a `beans` folder and:
     - add a `ChatRequest` class with the following fields: conversationId:long, message:String, history:List<Message>
     - Add `Message` class with fields: role: String, content:String
