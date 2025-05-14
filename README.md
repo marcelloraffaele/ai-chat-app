@@ -20,10 +20,10 @@ npm run dev
 
 ## Demo Github copilot
 ### Prompt 1
-Using **Claude Sonnet 3.5**, in GitHub copilot edit in agent mode, add the `aichat-backend` folder and  run the following prompt:
+Using GitHub copilot edit in agent mode, add the `aichat-backend` folder and  run the following prompt:
 
 ```
-create a Spring boot controller expose and API for a AI chat application.
+create a Spring boot controller expose and API for a AI chat backend application.
 Create a `beans` folder and:
     - add a `ChatRequest` class with the following fields: conversationId:long, message:String, history:List<Message>
     - Add `Message` class with fields: role: String, content:String
