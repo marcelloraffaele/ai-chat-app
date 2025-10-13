@@ -36,4 +36,4 @@ The way to import Tailwind in `.css` files is this:
 ```
 @import "tailwindcss";
 ```
-it is already imported in `App.css` file don't import it again.
+Please be sure it is imported only in the `App.css` file and don't import it again.

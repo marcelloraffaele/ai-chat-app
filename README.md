@@ -39,6 +39,8 @@ If added libraries, update all the dependency.
 Create a `services` folder and add a `ChatService` that will manage a conversationMap: Map<Long,List<Message>>. The key is the conversationID, when a request arrive, if not present the conversationID it will create a new map entry. For the moment for the completion, create a mock method called `generateAIResponse` that return the string "AI response " + message .
 ```
 
+run the backend `mvn spring-boot:run` and check the api with swagger: `http://localhost:8080/swagger-ui/index.html`
+
 ### Prompt 2 - client generation
 ```
 For each of the controllers api, generate the following curl and save a file named `client.rest`: 
@@ -55,7 +57,7 @@ Follow the instructions below:
 Create a modern, responsive frontend for an AI chat application inspired by the clean, minimalistic design of ChatGPT.
 The frontend should be built using React and must use Tailwind. Tailwind is already configured, don't configure it.
 The interface should include the following features:
-1. A fixed header with a title (e.g., 'AI Chat') and a 'New Chat' button in the sidebar. Each chat will have a conversationId that will start from 1.
+1. A fixed header with a title (e.g., 'AI Chat') and a 'New Chat' button and the list of the previous chats in the sidebar. Each chat will have a conversationId that will start from 1.
 2. A main chat area that displays a scrollable history of messages: user messages on the right (in a distinct color like blue), AI responses on the left (in a neutral color like gray), with smooth scrolling for long conversations. Markdown format must be handled for messages.
 3. A text input field at the bottom with a 'Send' button and support for pressing 'Enter' to submit the message.
 4. A loading indicator (e.g., animated dots or spinner) to show when the AI is processing a response.
